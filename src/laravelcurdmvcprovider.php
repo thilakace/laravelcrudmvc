@@ -1,4 +1,4 @@
-<?php  namespace vendor\thilagaraja\LaravelCurdMvc;
+<?php  namespace vendor\thilagaraja\laravelcurdmvc;
 
 use Illuminate\Support\ServiceProvider;
    
