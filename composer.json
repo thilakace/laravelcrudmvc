@@ -1,0 +1,12 @@
+{
+    "name": "thilagaraja/laravelcurdmvc",
+    "type": "library",
+    "authors": [
+        {
+            "name": "thilagaraja",
+            "email": "thilagaraja.sekar@eluminaelearning.com.au"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
