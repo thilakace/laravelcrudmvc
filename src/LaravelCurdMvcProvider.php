@@ -8,7 +8,13 @@ class LaravelCurdMvcProvider extends ServiceProvider {
         public function boot()
         {
             $this->loadRoutesFrom(__DIR__.'/routes/web.php');
-           // include __DIR__.'/routes/web.php';
+            
+            $this->loadViewsFrom(__DIR__.'/resources/views', 'mvc');
+
+            $this->publishes([
+                __DIR__.'/resources/views' => base_path('resources/views/vendor/laravel-curd-mvc'),
+//                __DIR__.'/public/css/' => public_path('resources/assets/css/vendor/laravel-curd-mvc'),
+            ], 'assets');
         }
         public function register()
         {
