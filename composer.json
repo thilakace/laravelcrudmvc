@@ -4,9 +4,14 @@
     "authors": [
         {
             "name": "thilagaraja",
-            "email": "thilagaraja.sekar@eluminaelearning.com.au"
+            "email": "thilakazb@gmail.com"
         }
     ],
     "minimum-stability": "dev",
-    "require": {}
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Thilagaraja\\Laravelcurdmvc\\": "src/"
+        }
+    }
 }
