@@ -74,7 +74,7 @@ class MasterController extends Controller
         echo fwrite($file_mig,$migration);
         fclose($file_mig);
 
-        $model_folder = base_path()."/"."app/Model";
+        $model_folder = base_path()."/"."app/Models";
         if(!is_dir($model_folder)){
         mkdir($model_folder,0777);
         }
@@ -83,7 +83,7 @@ class MasterController extends Controller
         $model = 
         '<?php
 
-        namespace App\Model;
+        namespace App\Models;
 
         use Illuminate\Database\Eloquent\Model;
         use Schema;
@@ -395,16 +395,18 @@ class MasterController extends Controller
         $routes = file_get_contents($file2);
 
         $routes .= 
-        '// below routes for '.$name.'
-        Route::get("/'.$name_class.'", "Master\\'.$cntrl_name.'Controller@index");
-        Route::get("/'.$name_class.'/create", "Master\\'.$cntrl_name.'Controller@create");
-        Route::post("/'.$name_class.'", "Master\\'.$cntrl_name.'Controller@store");
-        Route::get("/'.$name_class.'/{id}/edit", "Master\\'.$cntrl_name.'Controller@edit");
-        Route::put("/'.$name_class.'/{id}", "Master\\'.$cntrl_name.'Controller@update");
-        Route::get("/'.$name_class.'/{id}/delete", "Master\\'.$cntrl_name.'Controller@delete");
-        Route::get("/'.$name_class.'/{id}/delete_img", "Master\\'.$cntrl_name.'Controller@delete_img");
-        Route::get("/'.$name_class.'/{id}/{param}/status", "Master\\'.$name_class.'Controller@status");
-        Route::get("/'.$name_class.'_list", "Master\\'.$cntrl_name.'Controller@lists");
+        '
+        // below routes for '.ucfirst($name_class).'
+        
+        Route::get("/'.$name_class.'", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "index"]);
+        Route::get("/'.$name_class.'/create", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "create"]);
+        Route::post("/'.$name_class.'", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "store"]);
+        Route::get("/'.$name_class.'/{id}/edit", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "edit"]);
+        Route::put("/'.$name_class.'/{id}", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "update"]);
+        Route::get("/'.$name_class.'/{id}/delete", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "delete"]);
+        Route::get("/'.$name_class.'/{id}/delete_img",[App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "delete_img"]);
+        Route::get("/'.$name_class.'/{id}/{param}/status", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "status"]);
+        Route::get("/'.$name_class.'_list", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "lists"]);
         ';
 
         file_put_contents($file2, $routes);
@@ -670,7 +672,7 @@ class MasterController extends Controller
         <body>
         
         <div class="jumbotron text-center">
-          <h1>'.$name.'</h1>
+          <h1>'.ucfirst($name_class).'</h1>
         </div>
           
         <div class="container">
@@ -687,7 +689,7 @@ class MasterController extends Controller
         echo fwrite($crud_app_blade,$crud_app);
         fclose($crud_app_blade);
 
-        return " ".$name." has been create successfully";
+        return " ".$name_class." has been create successfully";
 
     }
 }
