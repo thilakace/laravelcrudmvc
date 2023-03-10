@@ -2,6 +2,6 @@
     
     Route::group(['namespace' => 'Thilagaraja\Laravelcurdmvc\app\Http\Controllers'], function()
 {
-    Route::get('master', ['uses' => 'MasterController@index']);
+    Route::get('master/{module}', ['uses' => 'MasterController@index']);
 })
 ?>
