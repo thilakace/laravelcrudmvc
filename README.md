@@ -26,3 +26,23 @@ composer require laravelcollective/html
 * API Name : http://localhost:8000/master
 * Method   : POST
 * payload  :  
+
+```
+{
+  "module" : "new7",
+  "fields" : [
+    {
+      "column" : "name",
+      "date_type" : "string"
+    },
+    {
+      "column" : "location",
+      "date_type" : "string"
+    },
+    {
+      "column" : "No of Parking",
+      "date_type" : "integer"
+    }
+    ]
+}
+```
