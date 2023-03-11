@@ -2,19 +2,97 @@
 
 use App\Http\Controllers\Controller;
 use Thilagaraja\Laravelcurdmvc\app\models\User;
+use Request;
+use Illuminate\Support\Str;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+use DB;
 
 class MasterController extends Controller
 {
-    public function index($module)
+    public function index()
     {
-        //return User::all();
-        if($module){
-            return $this->create($module);
+        $response = NULL;
+        if(Request::exists('module')){
+            $module = $this->getSlug(Request::get('module'));
+            $exist =  $this->moduleExist($module);
+            if($exist == 'NotExist'){
+                $response =  $this->create($module);
+            }else{
+                $response = $exist;
+            }
+           
         }else{
-            return "Module not found";
+            $response = "Module not found";
         }
        
+        return $response;
         
+    }
+    public function getSlug($str){
+        return Str::slug($str, "_");
+    }
+
+    
+
+    public function moduleExist($module){
+        
+        $result = '';
+        if (!Schema::hasTable('crud_master')) {
+            // Code to create table
+            Schema::create("crud_master", function (Blueprint $table) {
+                
+                $table->increments("id");
+                $table->string("module");
+                $table->string("slug");
+                $table->integer("status",false,true)->default(1);
+                $table->timestamps();
+
+            });
+
+            $values = array('module' => $module,'slug' => $module);
+            DB::table('crud_master')->insert($values);
+            $result = 'Exist';
+        }else{
+            $exist = DB::table('crud_master')->where('module','=', $module)->count();
+            if($exist != 0){
+                $result = 'Exist';
+            }else{
+                $result = 'NotExist';
+            }
+        }
+
+        return $result;
+
+    }
+
+    public function create_migration_content(){
+        $migrationContent = '';
+        $migrationContent .= '$table->increments("id");'.PHP_EOL;
+        if(Request::exists('fields')){
+            foreach (Request::get('fields') as $key => $value) {
+                # code...
+                $column = Str::slug($value["column"], "_");
+                switch ($value['date_type']){
+                    
+                    case 'string':
+                     $migrationContent .= ' $table->string("'.$column.'");'.PHP_EOL;
+                    break;   
+                    case 'integer':
+                        $migrationContent .= ' $table->integer("'.$column.'");'.PHP_EOL;
+                       break;   
+                    default:
+                    
+                } 
+            }
+            $migrationContent .= ' $table->integer("status",false,true);'.PHP_EOL;
+            $migrationContent .= ' $table->integer("created_by",false,true);'.PHP_EOL;
+            $migrationContent .= ' $table->integer("modified_by",false,true);'.PHP_EOL;
+            $migrationContent .= ' $table->timestamps();';
+            return $migrationContent;
+
+            
+        }
     }
 
     public function create($name){
@@ -52,9 +130,7 @@ class MasterController extends Controller
             {
                 Schema::create("'.$table_name.'", function (Blueprint $table) {
                 
-                    $table->increments("id");
-                    $table->integer("status",false,true);
-                    $table->timestamps();
+                    '.$this->create_migration_content().'
 
                 });
             }
@@ -73,6 +149,7 @@ class MasterController extends Controller
         ';
         echo fwrite($file_mig,$migration);
         fclose($file_mig);
+        
 
         $model_folder = base_path()."/"."app/Models";
         if(!is_dir($model_folder)){
@@ -132,9 +209,9 @@ class MasterController extends Controller
         use Session;
         use Illuminate\Support\Facades\Validator;
         use Illuminate\Support\Facades\Redirect;
-        use App\Model\\'.$name_class.';
-        use App\Model\master;
-        use App\Model\Avatar;
+        use App\Models\\'.$name_class.';
+        use App\Models\master;
+        use App\Models\Avatar;
         use Auth;
 
 
@@ -228,7 +305,7 @@ class MasterController extends Controller
                     
                     }
                     $data->status = 0;
-                    $data->created_by = Auth::user()->id;
+                    $data->created_by = 0;
                     $data->modified_by = 0;
                     $data->save();
                     
@@ -688,6 +765,12 @@ class MasterController extends Controller
 
         echo fwrite($crud_app_blade,$crud_app);
         fclose($crud_app_blade);
+
+        
+        $values = array('module' => $name_class,'slug' => $name_class);
+        DB::table('crud_master')->insert($values);
+
+        
 
         return " ".$name_class." has been create successfully";
 
