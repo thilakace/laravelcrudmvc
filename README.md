@@ -58,9 +58,8 @@ composer require laravelcollective/html
 
 
 ```
-* Column name 'name' is mandatory for all modules,
 * Data types : string, integer, date, dateTime, bigInteger
-* See the json file all data types [Sample Payload] (https://github.com/thilakace/laravelcrudmvc/blob/master/sample_module_create.json)
+* See the json file all data types [Sample Payload](https://github.com/thilakace/laravelcrudmvc/blob/master/sample_module_create.json)
 * This package will create one master table in your project for unique module validation. The table name is crud_master.
 * And each module has an seperate table. 
 ## Step 2 : Run migration for table creation 
