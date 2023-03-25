@@ -213,6 +213,7 @@ class MasterController extends Controller
         use App\Models\master;
         use App\Models\Avatar;
         use Auth;
+        use Illuminate\Http\Response;
 
 
 
@@ -239,7 +240,10 @@ class MasterController extends Controller
                     $new_column = array("id"); // add as your need
                     $data["table_column"] = '.$name_class.'::getTableColumns("needed",$new_column);
                     $data["form_column"] = '.$name_class.'::getTableColumns();
-                    return view("pages/'.$name_class.'/index",$data);
+                    return response()->json([
+                        "status" => "Success",
+                        "data" => $data
+                    ]); 
             }
             
             public function store () {
@@ -269,7 +273,7 @@ class MasterController extends Controller
 
                 if ( $validator->fails() )
                 {
-                    return Redirect::back()->withErrors($validator)->withInput(Input::all());
+                    return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
                 }
                     else
                 {
@@ -305,24 +309,20 @@ class MasterController extends Controller
                     
                     }
                     $data->status = 0;
-                    $data->created_by = 0;
-                    $data->modified_by = 0;
+                   // $data->created_by = 0;
+                    //$data->modified_by = 0;
                     $data->save();
                     
-                    Session::flash("success", "Item has been Stored.");
+                    return response()->json([
+                        "status" => "The Data has been added.",
+                        "data" => $data->id
+                    ]); 
                 }
         
-                    return redirect("'.$name_class.'");
+                   
                 
             }
             public function edit($id) {
-                    /**
-                     * this is edit process
-                     *
-                     * 
-                     */
-
-                    $data["list"] = '.$name_class.'::where("status","!=",2)->paginate(10);
                     
                     $new_column = array("id"); // add as your need
                     
@@ -332,16 +332,16 @@ class MasterController extends Controller
                     
                     $data["item"] = '.$name_class.'::find($id);
                     
-                    return view("pages/'.$name_class.'.index",$data);
+                    return response()->json([
+                        "status" => "Success",
+                        "data" => $data
+                    ]); 
 
             }
             
             public function update ($id) {
                     
-                    /**
-                     *  For getting input values for validation rules
-                     *
-                     */
+                 
 
                 $except = array("status","id","created_at","updated_at","created_by","modified_by");
                 $column = '.$name_class.'::getTableColumns("except",$except);
@@ -367,7 +367,7 @@ class MasterController extends Controller
 
                     if ( $validator->fails() )
                     {
-                        return Redirect::back()->withErrors($validator)->withInput(Input::all());
+                        return response()->json($validator->messages(), Response::HTTP_BAD_REQUEST);
                     }
                     else
                     {
@@ -407,10 +407,13 @@ class MasterController extends Controller
 
                             $data->save();
                             
-                            Session::flash("success", "Item has been updated."); 
+                            return response()->json([
+                                "status" => "The Data has been added.",
+                                "data" => $data->id
+                            ]); 
                     }
 
-                    return redirect("'.$name_class.'");
+                    
 
             }
             public function delete ($id) {
@@ -421,9 +424,10 @@ class MasterController extends Controller
                     $data  = '.$name_class.'::find($id);
                     $data->status = 2;
                     $data->save();
-                    Session::flash("success", "Item has been successfully deleted");
-                    
-                    return redirect("'.$name_class.'");
+                    return response()->json([
+                        "status" => "The Data has been deleted.",
+                        "data" => $data->id
+                    ]);  
             }
             public function status ($id,$param) {
                 /**
@@ -433,8 +437,10 @@ class MasterController extends Controller
                 $data->status = $param;
                 $data->save();
                 
-                Session::flash("success", "Status has been successfull changed");
-                return redirect("'.$name_class.'");
+                return response()->json([
+                    "status" => "Status has been successfull changed.",
+                    "data" => $data->id
+                ]);  
             }
 
             public function delete_img ($id) {
@@ -453,11 +459,7 @@ class MasterController extends Controller
                     
                     return redirect("'.$name_class.'");
             }
-            public function lists () {
-                    $list  = '.$name_class.'::where("status","!=",2)->get();
-                    $res = array("status"=>"success","message"=>"","list"=>$list);
-                    echo json_encode($res);
-            }
+            
 
         }
 
@@ -475,296 +477,17 @@ class MasterController extends Controller
         '
         // below routes for '.ucfirst($name_class).'
         
-        Route::get("/'.$name_class.'", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "index"]);
-        Route::get("/'.$name_class.'/create", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "create"]);
-        Route::post("/'.$name_class.'", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "store"]);
-        Route::get("/'.$name_class.'/{id}/edit", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "edit"]);
-        Route::put("/'.$name_class.'/{id}", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "update"]);
-        Route::get("/'.$name_class.'/{id}/delete", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "delete"]);
-        Route::get("/'.$name_class.'/{id}/delete_img",[App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "delete_img"]);
-        Route::get("/'.$name_class.'/{id}/{param}/status", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "status"]);
-        Route::get("/'.$name_class.'_list", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "lists"]);
+        Route::get("/webhook/'.$name_class.'", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "index"]);
+        //Route::get("/webhook/'.$name_class.'/create", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "create"]);
+        Route::post("/webhook/'.$name_class.'", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "store"]);
+        Route::get("/webhook/'.$name_class.'/{id}/edit", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "edit"]);
+        Route::put("/webhook/'.$name_class.'/{id}", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "update"]);
+        Route::delete("/webhook/'.$name_class.'/{id}", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "delete"]);
+        //Route::get("/webhook/'.$name_class.'/{id}/delete_img",[App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "delete_img"]);
+        Route::get("/webhook/'.$name_class.'/{id}/{param}/status", [App\Http\Controllers\Master\\'.$cntrl_name.'Controller::class, "status"]);
         ';
 
         file_put_contents($file2, $routes);
-
-        //  $angular_app_file = base_path()."/public/angular/app.js";
-
-        // $angular_app = file_get_contents($angular_app_file);
-        // $angular_app .= 
-        // '// below for angularjs cntrl 
-        // app.controller("'.$cntrl_name.'", function ($scope,GenFactory) {
-            
-        //            GenFactory.get_List("'.$cntrl_name.'_list").then(function(result){
-        //                       $scope.listings = result.list;
-                            
-        //               });
-
-        // });
-        // ';
-
-        //  file_put_contents($angular_app_file, $angular_app);
-
-
-        $view_folder = base_path()."/"."resources/views/pages";
-        if(!is_dir($view_folder)){
-        mkdir($view_folder,0777);
-        }
-
-
-        $view_folder  = base_path()."/"."resources/views/pages/".$name_class;
-        if (!file_exists($view_folder)) {
-            mkdir($view_folder, 0777, true);
-        }
-
-        $index = fopen(base_path()."/"."resources/views/pages/".$name_class."/index.blade.php","w");
-       
-
-        $views = '
-        @extends("pages.crud_app")
-
-        @section("content")
-
-            <div class="row" ng-controller="'.$name_class.'Cntrl">
-            <div class="col-lg-6 col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-
-                        <div class="pull-left">
-                            <span> <?php if (isset($item)) { echo "Update";}else{ echo "Create";}?>  '.$name_class.'</span>
-                        </div>
-                        <div class="pull-right">
-                        <!-- <a class="text-right btn btn-xs btn-primary" href="/'.$name_class.'">List Items</a> -->
-                        </div>
-                    <div class="clearfix"></div>
-
-                    </div>
-
-                    <div class="panel-body">
-                        @if (isset($errors) && count($errors) > 0 )
-                        <div class="alert alert-danger">
-                            @foreach ($errors->all() as $error)
-                                {{ $error }}<br>        
-                            @endforeach
-                        </div>
-                        @endif
-
-                <?php 
-                if(isset($item)){
-                ?>
-                {{ Form::model($item, array("url" => array("/'.$name_class.'", $item->id), "method" => "PUT" , "class" => "form-horizontal","files"=>"true")) }}
-                <?php
-                }else{
-                ?>
-                {{ Form::open(array("url" => "/'.$name_class.'","method"=>"POST","class"=>"form-horizontal","files"=>"true")) }}
-                <?php
-                }
-                ?>
-                            
-
-                            <?php
-
-                                if(isset($form_column)){
-                                    foreach ($form_column as $value) {
-                                    if($value =="status" || $value =="id" || $value=="created_at" || $value=="updated_at" || $value=="created_by" || $value=="modified_by" || $value =="remember_token"){
-
-
-                                        }
-                                        else if ($value == "image" && isset($item)){  ?>
-
-                                    <div class="form-group">
-                                        <label for="name" class="col-md-4 control-label"><?php echo ucfirst(str_replace("_"," ",$value)); ?></label>
-
-                                        <div class="col-md-6" ng-show="input_file">
-                                            <input id="name" type="file" class="form-control" name="<?php echo $value;?>[]"   autofocus multiple>
-
-                                            @if ($errors->has($value))
-                                                <span class="help-block">
-                                                    <strong class="text-danger">{{ $errors->first($value) }}</strong>
-                                                </span>
-                                            @endif
-                                        </div>
-                                        <div class="col-md-6" ng-hide="input_file">
-                                        <ul style="list-style: none">
-                                        
-                                        <?php 
-                                            $images = \App\Model\Avatar::where("unique_id","=",$item->image)->get();
-                                            if(isset($images)){
-                                            foreach ($images as $key => $value) {
-                                                $src = "/".$value->path."/".$value->image;
-                                                ?>
-                                                <li style="float:left" >
-                                                    <img src="<?php echo $src; ?>"  class="img-thumbnail"/>
-                                                    <p class="text-center"><a href="/news/<?php echo $value->id;?>/delete_img" onclick="return confirm(\'Are you sure?\')" class="btn btn-xs btn-circle btn-lg d_btn"><i class="ion ion-ios-trash-outline"></i></a> </p> 
-                                                </li>
-                                                
-                                                <?php
-                                            }
-                                            }
-                                        ?>
-                                            
-                                                
-                                            </ul>
-                                            <p><button type="button" ng-click="input_file=true" class="btn btn-xs btn-primary">Add More</button></p>
-                                        </div>
-                                    </div>
-
-                                    <?php
-                                        }
-
-                                        else if ($value == "image"){  ?>
-
-                                    <div class="form-group">
-                                        <label for="name" class="col-md-4 control-label"><?php echo ucfirst(str_replace("_"," ",$value)); ?></label>
-
-                                        <div class="col-md-6">
-                                            <input id="name" type="file" class="form-control" name="<?php echo $value;?>[]"   autofocus multiple>
-
-                                            @if ($errors->has($value))
-                                                <span class="help-block">
-                                                    <strong class="text-danger">{{ $errors->first($value) }}</strong>
-                                                </span>
-                                            @endif
-                                        </div>
-                                    </div>
-
-                                    <?php
-
-                                    }else{
-
-                                    ?>
-
-
-                                <div class="form-group">
-                                        <?php 
-                                        $text_field_name =  ucfirst(str_replace("_"," ",$value));
-                                        $placeholder = "Enter a ".$text_field_name;
-                                        ?>
-                                        <label for="name" class="col-md-4 control-label"><?php echo $text_field_name; ?></label>
-
-                                        <div class="col-md-6">
-                                        <!--   <input id="name" type="text" class="form-control" name="<?php //echo $value;?>" value="{{ old($value) }}"  autofocus placeholder="Enter a value"> -->
-                                            
-                                            {{ Form::text($value, null, array("class" => "form-control" , "placeholder" => $placeholder)) }}
-
-                                            @if ($errors->has($value))
-                                                <span class="help-block">
-                                                    <strong class="text-danger">{{ $errors->first($value) }}</strong>
-                                                </span>
-                                            @endif
-                                        </div>
-                                </div>
-
-
-                            <?php
-                                    }
-                                    }
-                                }
-                                ?>
-                                <div class="form-group">
-                                    <div class="col-md-6 col-md-offset-4">
-                                        <button type="submit" class="btn btn-primary">
-                                            <?php if (isset($item)) { echo "Update";}else{ echo "Create";}?>
-                                        </button>
-                                    </div>
-                                </div>
-                            {!! Form::close() !!}
-                    </div>
-                </div>
-            </div>
-                <div class="col-lg-6 col-md-12">
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <div class="pull-left">
-                                <span>'.$name_class.'</span>
-                            </div>
-                            <div class="pull-right">
-                            <a class="text-right btn btn-xs btn-primary" href="/'.$name_class.'">Add New</a>
-                            </div>
-                            <div class="clearfix"></div>
-                        </div>
-
-                        <div class="panel-body">
-                            @if (Session::has("success"))
-                                <div class="alert alert-info">{{ Session::get("success") }}</div>
-                            @endif
-                        <div style="overflow: auto">
-                            <table class="table table-bordered table-hover">
-                                <thead>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Status</th>
-                                <th>Action</th>
-                                </thead>
-                                <tbody>
-                                    <tr  dir-paginate="listing in listings | filter:q | itemsPerPage:15 ">
-                                        <td><span ng-bind="listing.id"></span></td>
-                                        <td><span ng-bind="listing.name"></span></td>
-                                        <td><span ng-if="listing.status ==1">Active</span><span ng-if="listing.status ==0">InActive</span></td>
-                                        <td>
-                                            <a href="/'.$name_class.'/@{{listing.id}}/edit" class="btn btn-xs  btn-circle btn-lg e_btn" data-tooltip="Edit"><i class="ion ion-edit" ></i></a>
-                                            <a href="/'.$name_class.'/@{{listing.id}}/delete" onclick="return confirm(\'Are you sure you want to delete ?\')" class="btn btn-xs  btn-circle btn-lg d_btn" data-tooltip="Delete"><i class="ion ion-ios-trash-outline"></i></a>
-                                        
-                                            <a href="/'.$name_class.'/@{{listing.id}}/1/status" class="btn btn-xs  btn-circle btn-lg a_btn" onclick="return confirm(\'you want active now?\')" ng-if="listing.status==0" data-tooltip="Go to active"><i class="ion ion-android-checkmark-circle" ></i></a>
-                                        
-                                            <a href="/'.$name_class.'/@{{listing.id}}/0/status" class="btn btn-xs  btn-circle btn-lg ina_btn"  onclick="return confirm(\'you want Inactive now?\')"  ng-if="listing.status==1" data-tooltip="Go to InActive"><i class="ion ion-minus-circled"></i></a>
-                                            
-
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                            </div>
-                        <div class="text-center">
-                            <dir-pagination-controls
-                                direction-links="true"
-                                boundary-links="true" >
-                            </dir-pagination-controls>
-                        </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        @endsection
-
-        ';
-        echo fwrite($index,$views);
-        fclose($index);
-        
-        // layout page
-        $crud_app_blade = fopen(base_path()."/"."resources/views/pages/crud_app.blade.php","w");
-
-        $crud_app = '
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <title>Bootstrap Example</title>
-          <meta charset="utf-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1">
-          <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-          <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-          <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-        </head>
-        <body>
-        
-        <div class="jumbotron text-center">
-          <h1>'.ucfirst($name_class).'</h1>
-        </div>
-          
-        <div class="container">
-          <div class="row">
-              @yield("content")
-          </div>
-        </div>
-        
-        </body>
-        </html>
-        
-        ';
-
-        echo fwrite($crud_app_blade,$crud_app);
-        fclose($crud_app_blade);
 
         
         $values = array('module' => $name_class,'slug' => $name_class);
