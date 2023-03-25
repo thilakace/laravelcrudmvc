@@ -1,0 +1,137 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Laravel-crud-mvc-collection",
+    "dateExported": "2023-03-25T13:33:00.243Z",
+    "version": "1.1",
+    "folders": [
+        {
+            "_id": "0cdc9bad-e772-4eb9-869f-19b7d38bf79f",
+            "name": "Master Module Creation API",
+            "containerId": "",
+            "created": "2023-03-10T13:27:53.061Z",
+            "sortNum": 10000
+        },
+        {
+            "_id": "31f0e9e3-dee6-40b4-bd13-29e09b0ba46f",
+            "name": "Master API's",
+            "containerId": "",
+            "created": "2023-03-25T12:05:41.461Z",
+            "sortNum": 20000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "7b50e3cb-dd85-41fe-8f4a-b5ae2899d053",
+            "colId": "994779a5-f031-46ed-a3db-e83b2b52327f",
+            "containerId": "0cdc9bad-e772-4eb9-869f-19b7d38bf79f",
+            "name": "master",
+            "url": "http://localhost:8000/master",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2023-03-10T13:28:06.715Z",
+            "modified": "2023-03-25T12:47:26.154Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"module\" : \"category\",\n  \"fields\" : [\n    {\n      \"column\" : \"name\",\n      \"date_type\" : \"string\"\n    },\n    {\n      \"column\" : \"tags\",\n      \"date_type\" : \"string\"\n    },\n    {\n      \"column\" : \"count\",\n      \"date_type\" : \"integer\"\n    }\n    ]\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "2479de38-5472-4d79-b7ed-b388a5746c24",
+            "colId": "994779a5-f031-46ed-a3db-e83b2b52327f",
+            "containerId": "31f0e9e3-dee6-40b4-bd13-29e09b0ba46f",
+            "name": "List",
+            "url": "http://localhost:8000/webhook/{{module}}",
+            "method": "GET",
+            "sortNum": 20000,
+            "created": "2023-03-25T12:05:53.876Z",
+            "modified": "2023-03-25T12:50:52.765Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "b295acb6-6090-4eff-b382-269e6ff0895a",
+            "colId": "994779a5-f031-46ed-a3db-e83b2b52327f",
+            "containerId": "31f0e9e3-dee6-40b4-bd13-29e09b0ba46f",
+            "name": "Store",
+            "url": "http://localhost:8000/webhook/{{module}}",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2023-03-25T12:07:56.210Z",
+            "modified": "2023-03-25T13:23:20.614Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"tags\" : \"test2\",\n  \"name\" : \"test\",\n  \"count\" : 5\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "f060f059-6924-4781-953e-a3501bc46247",
+            "colId": "994779a5-f031-46ed-a3db-e83b2b52327f",
+            "containerId": "31f0e9e3-dee6-40b4-bd13-29e09b0ba46f",
+            "name": "edit",
+            "url": "http://localhost:8000/webhook/{{module}}/1/edit",
+            "method": "GET",
+            "sortNum": 40000,
+            "created": "2023-03-25T12:26:58.455Z",
+            "modified": "2023-03-25T12:53:46.356Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "bd3f4f72-ed9b-45f3-a64b-4d6d1a7e72da",
+            "colId": "994779a5-f031-46ed-a3db-e83b2b52327f",
+            "containerId": "31f0e9e3-dee6-40b4-bd13-29e09b0ba46f",
+            "name": "Update",
+            "url": "http://localhost:8000/webhook/{{module}}/4",
+            "method": "PUT",
+            "sortNum": 50000,
+            "created": "2023-03-25T12:30:14.088Z",
+            "modified": "2023-03-25T13:24:57.382Z",
+            "headers": [],
+            "params": [],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"name\" : \"test\",\n  \"tags\" : \"chennai \",\n  \"count\" : 15\n}",
+                "form": []
+            },
+            "tests": []
+        },
+        {
+            "_id": "de61e4b1-e945-4fc6-84b7-fff5ea49e8aa",
+            "colId": "994779a5-f031-46ed-a3db-e83b2b52327f",
+            "containerId": "31f0e9e3-dee6-40b4-bd13-29e09b0ba46f",
+            "name": "Delete",
+            "url": "http://localhost:8000/webhook/new4/1",
+            "method": "DELETE",
+            "sortNum": 60000,
+            "created": "2023-03-25T12:34:28.655Z",
+            "modified": "2023-03-25T12:34:58.568Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        },
+        {
+            "_id": "93b5c520-a9d5-42a3-8e35-1d29d2f95180",
+            "colId": "994779a5-f031-46ed-a3db-e83b2b52327f",
+            "containerId": "31f0e9e3-dee6-40b4-bd13-29e09b0ba46f",
+            "name": "Status change",
+            "url": "http://localhost:8000/webhook/{{module}}/2/1/status",
+            "method": "GET",
+            "sortNum": 70000,
+            "created": "2023-03-25T12:36:20.709Z",
+            "modified": "2023-03-25T13:28:59.571Z",
+            "headers": [],
+            "params": [],
+            "tests": []
+        }
+    ]
+}

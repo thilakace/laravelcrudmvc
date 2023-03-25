@@ -99,8 +99,11 @@ class MasterController extends Controller
         $name_class = str_replace(" ", "_", $name);
         $cntrl_name = ucfirst($name_class);
         $table_name = $name_class;
-        return $this->done($name_class,$cntrl_name,$table_name);
-        //return view('mvc::welcome');
+        $this->done($name_class,$cntrl_name,$table_name);
+        return response()->json([
+            "status" => " ".$name_class." has been create successfully",
+            "data" => ''
+        ]); 
     }
 
     public function done($name_class,$cntrl_name,$table_name){
@@ -236,7 +239,7 @@ class MasterController extends Controller
              */
             public function index()
             {
-                    $data["list"] = '.$name_class.'::where("status","!=",2)->paginate(10);
+                    $data["list"] = '.$name_class.'::where("status","!=",2)->get();
                     $new_column = array("id"); // add as your need
                     $data["table_column"] = '.$name_class.'::getTableColumns("needed",$new_column);
                     $data["form_column"] = '.$name_class.'::getTableColumns();
@@ -309,8 +312,8 @@ class MasterController extends Controller
                     
                     }
                     $data->status = 0;
-                   // $data->created_by = 0;
-                    //$data->modified_by = 0;
+                    $data->created_by = 0;
+                    $data->modified_by = 0;
                     $data->save();
                     
                     return response()->json([
@@ -494,8 +497,9 @@ class MasterController extends Controller
         DB::table('crud_master')->insert($values);
 
         
-
-        return " ".$name_class." has been create successfully";
+        
+        
+        
 
     }
 }
