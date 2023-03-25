@@ -48,12 +48,16 @@ composer require laravelcollective/html
 {
   "module" : "module name here",
   "fields" : [
-    {
-       "column" : "email",
-       "date_type" : "string",
-       "required" : true,
-       "unique" : true
-    }
+      {
+        "column" : "email",
+        "date_type" : "string",
+        "required" : true,
+        "unique" : true
+      },
+      {
+        "column" : "image",
+        "date_type" : "string"
+      }
     ]
 }
 
@@ -61,7 +65,8 @@ composer require laravelcollective/html
 ```
 * Data types : string, integer, date, dateTime, bigInteger
 * See the json file all data types [Sample Payload](https://github.com/thilakace/laravelcrudmvc/blob/master/sample_module_create.json)
-* This package will create one master table in your project for unique module validation. The table name is crud_master.
+* This package will create one master table in your project for unique module validation. The table name is crud_master and avatar table for image upload.
+* If you want to image column on module, you need to specify column name as 'image'. So it automatically consider as file upload.
 * And each module has an seperate table. 
 ## Step 2 : Run migration for table creation 
 * After run the master module api, below file will be created automatically in your project folder
