@@ -17,7 +17,16 @@ class MasterController extends Controller
             $module = $this->getSlug(Request::get('module'));
             $exist =  $this->moduleExist($module);
             if($exist == 'NotExist'){
-                $response =  $this->create($module);
+                $name_class = str_replace(" ", "_", $module);
+                $cntrl_name = ucfirst($name_class);
+                $table_name = $name_class;
+                if (!Schema::hasTable($table_name)) {
+                    $response =  $this->create($module);
+                }else{
+                    $response = "Table already available in the DB.";
+                }
+
+                
             }else{
                 $response = $exist;
             }
