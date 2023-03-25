@@ -2,6 +2,12 @@
 
 [![Author](https://img.shields.io/badge/Author-Thilagaraja-blue.svg?style=flat-square)](https://github.com/thilakace)
 
+## Description about package
+* This package is useful for Developers to easily create a CRUD (Create, Read, Update, Delete) for API Integration.
+* Below are the command to use this feature.
+```
+composer require thilagaraja/laravelcurdmvc 
+```
 ## System require
 * PHP
 * Laravel
@@ -10,13 +16,13 @@
 ## add below in config/app.php
 
 * under the provide 
-
+```
 Thilagaraja\Laravelcurdmvc\LaravelCurdMvcProvider::class
-
+```
 * under the allases
-
+```
  'Input' => Illuminate\Support\Facades\Request::class,
-
+```
 ## Need to disable csrf 
 * App\Http\Middleware\VerifyCsrfToken.php
 
