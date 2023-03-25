@@ -61,7 +61,10 @@ class MasterController extends Controller
 
             $values = array('module' => $module,'slug' => $module);
             DB::table('crud_master')->insert($values);
-            $result = 'Exist';
+            
+            $this->createCrudMasterModel('crud_master'); // create crud master model
+            $this->createAvatar('avatar'); // create image table and model
+            $result = 'NotExist';
         }else{
             $exist = DB::table('crud_master')->where('module','=', $module)->count();
             if($exist != 0){
@@ -259,7 +262,7 @@ class MasterController extends Controller
 
         $model_folder = base_path()."/"."app/Models";
         if(!is_dir($model_folder)){
-        mkdir($model_folder,0777);
+          mkdir($model_folder,0777);
         }
         $file_model = fopen($model_folder."/".$name_class.".php","w");
 
@@ -316,7 +319,7 @@ class MasterController extends Controller
         use Illuminate\Support\Facades\Validator;
         use Illuminate\Support\Facades\Redirect;
         use App\Models\\'.$name_class.';
-        use App\Models\master;
+        use App\Models\crud_master;
         use App\Models\Avatar;
         use Auth;
         use Illuminate\Http\Response;
@@ -392,7 +395,7 @@ class MasterController extends Controller
                             if(isset($img) && count($img) > 0){
                                 /* Multiple files upload */
                             
-                                $save_image = master::multiFileUpload($img,"'.$name_class.'");
+                                $save_image = crud_master::multiFileUpload($img,"'.$name_class.'");
 
                                 $data->image  = $save_image;
 
@@ -428,7 +431,14 @@ class MasterController extends Controller
                     
                     $data["form_column"] = '.$name_class.'::getTableColumns();
                     
-                    $data["item"] = '.$name_class.'::find($id);
+                   
+
+                    $item_data =  '.$name_class.'::find($id);
+                    if(isset($item_data->image)){
+                         $item_data->image = Avatar::get_multi_image($item_data->image);
+                    }
+                    
+                    $data["item"] = $item_data;
                     
                     return response()->json([
                         "status" => "Success",
@@ -480,7 +490,7 @@ class MasterController extends Controller
                                     
                                     /* Multiple files upload */
                                 
-                                    $save_image = master::multiFileUpload($img,"'.$name_class.'",$data->image);
+                                    $save_image = crud_master::multiFileUpload($img,"'.$name_class.'",$data->image);
 
                                     $data->image  = $save_image; 
                                 }
@@ -588,6 +598,220 @@ class MasterController extends Controller
         
         
 
+    }
+
+    public function createCrudMasterModel($master ='crud_master'){
+        $model_folder = base_path()."/"."app/Models";
+        if(!is_dir($model_folder)){
+          mkdir($model_folder,0777);
+        }
+        $file_model = fopen($model_folder."/".$master.".php","w");
+
+        $model = 
+        '<?php
+
+        namespace App\Models;
+
+        use Illuminate\Database\Eloquent\Model;
+        use Schema;
+        use File;
+        use Image;
+        use App\Models\Avatar;
+
+        class '.$master.' extends Model
+        {
+            //
+            protected $table = "'.$master.'";
+
+            
+            public static function getTableColumns($use=null, $new_column=null) {
+                
+                $columns = Schema::getColumnListing("'.$master.'");
+                if(isset($new_column) && $use=="needed"){
+                    return $result=array_intersect($new_column,$columns);
+                }else if(isset($new_column) && $use=="except"){
+                return $result=array_diff($columns,$new_column);      
+                }
+                else{
+                return $columns;  
+                }
+                
+            }
+            public static function multiFileUpload($allFiles,$source,$unique_id=null){
+    	
+                $count = count($allFiles);
+                
+                if(isset($unique_id)){
+                    $unique_id = $unique_id;
+                }else{
+                      $unique_id = mt_rand(111,9999999);
+                }
+                
+                $i = 0; 
+                $invalid = array();
+                $valid  = array();
+                foreach ($allFiles as $file)
+                      {
+      
+                         if($file->getSize() != false){
+                               $originalname = $file->getSize();
+                              $year = date("Y");
+                              $month = date("m");
+                              $day = date("Y_m_d_h_i_s");
+                              $destinationPath = "uploads/".$source."/".$year."/".$month;
+                              if (!file_exists($destinationPath)) 
+                              {
+                                  File::makeDirectory($destinationPath, 0777, true);
+                              }
+      
+                              
+                                  $extension = $file->getClientOriginalExtension();
+                                  $random_number    = mt_rand(1000, 9999);
+                                  $alphanumeric_val = rand(11111,999999);//Call 
+                                  $fileName=$source."_".$alphanumeric_val."_".$day.".".$extension; // renameing image
+                                  $path = public_path($destinationPath."/" . $fileName);
+                                   Image::make($file->getRealPath())->save($path);
+                                  // $img->move($destinationPath, $fileName);
+      
+                                  $thumbpath = "uploads/".$source."/".$year."/".$month."/thumb";
+                                 
+                                  // make thumbnail image  
+                                  crud_master::resize($destinationPath,$thumbpath,$fileName,110,85);
+                                  
+                                  
+                                  $avatar = new Avatar();
+                                  $avatar->path = $destinationPath;
+                                  $avatar->image = $fileName;
+                                  $avatar->source = $source;
+                                  $avatar->unique_id = $unique_id; 
+                                  $avatar->status = 1;
+                                  $avatar->save();
+                                  
+                         }else{
+                                 
+                         }
+                             
+                         
+                       $i++;
+                      }
+      
+                return $unique_id;
+               
+          } 
+              
+      
+              public static function resize($mainpath,$thumbpath,$fileName,$wid,$hei)
+              {
+                  if (!file_exists($thumbpath)) {
+                      File::makeDirectory($thumbpath, 0777, true);
+                  }
+                  $write = $thumbpath."/".$fileName;
+                  //width and height logic
+                  $width = ($wid/100)*100;
+                  $height = ($hei/100)*100;
+                  $image = Image::make(sprintf($mainpath."/%s", $fileName))->resize($width, $height)->save($write);
+      
+              }
+        }
+
+
+        ';
+        echo fwrite($file_model,$model);
+        fclose($file_model);
+    }
+
+    public function createAvatar($avatar ='avatar'){
+        if (!Schema::hasTable($avatar)) {
+            // Code to create table
+            Schema::create($avatar, function (Blueprint $table) {
+                
+                $table->increments('id');
+                $table->string('path');
+                $table->string('image');
+                $table->string('source');
+                $table->string('unique_id');
+                $table->integer('status',false,true);
+                $table->timestamps();
+
+            });
+
+          
+            
+        
+
+        $model_folder = base_path()."/"."app/Models";
+        if(!is_dir($model_folder)){
+          mkdir($model_folder,0777);
+        }
+        $file_model = fopen($model_folder."/".ucfirst($avatar).".php","w");
+
+        $model = 
+        '<?php
+
+        namespace App\Models;
+
+        use Illuminate\Database\Eloquent\Model;
+        use Schema;
+        
+
+        class '.ucfirst($avatar).' extends Model
+        {
+            //
+            protected $table = "'.$avatar.'";
+
+            public static function get_img_images($unique_id) {
+                $data = (Object) array();
+                 if(!empty($unique_id)){
+                         $avatar = Avatar::where("unique_id","=",$unique_id)->first();
+                      $avatars = Avatar::where("unique_id","=",$unique_id)->get();
+                      $avatars_img = array();
+                     if(isset($avatars) && count($avatars) > 0 ){
+                      foreach ($avatars as $key => $value) {
+                        $img = url("/")."/".$value->path."/".$value->image;   
+                        $avatars_img[] = (Object) array("image"=>$img);
+                      }
+                     }
+                     $image = url("/")."/".$avatar->path."/".$avatar->image;
+                     $data->single_image = $image;
+                     $data->images = $avatars_img;
+                 }
+  
+                 return $data;
+            }
+            public static function get_single_image($unique_id){
+                $avatar  = Avatar::where("unique_id","=",$unique_id)->orderBy("id","ASC")->first(); 
+                if(!empty($avatar)){
+                    $image = url("/")."/".$avatar->path."/".$avatar->image;	
+                }else{
+                    $image = null;
+                }
+                
+                return $image;
+            }
+            public static function get_multi_image($unique_id){
+                $avatars = Avatar::where("unique_id","=",$unique_id)->get();
+                $avatars_img = array();
+                            if(isset($avatars) && count($avatars) > 0 ){
+                            foreach ($avatars as $key => $value) {
+                                $img = url("/")."/".$value->path."/".$value->image;   
+                                $avatars_img[] = (Object) array("image"=>$img);
+                            }
+                            }
+                return $avatars_img;
+            }
+          
+            
+              
+      
+              
+    }
+
+
+        ';
+        echo fwrite($file_model,$model);
+        fclose($file_model);
+
+      }  // not exist
     }
 }
 

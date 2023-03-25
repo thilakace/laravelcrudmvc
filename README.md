@@ -7,6 +7,7 @@
 * Below are the command to use this feature.
 ```
 composer require thilagaraja/laravelcurdmvc 
+composer require intervention/image
 ```
 ## System require
 * PHP
