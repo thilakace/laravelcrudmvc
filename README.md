@@ -48,16 +48,10 @@ composer require laravelcollective/html
   "module" : "module name here",
   "fields" : [
     {
-      "column" : "name",  
-      "date_type" : "string"
-    },
-    {
-      "column" : "location",
-      "date_type" : "string"
-    },
-    {
-      "column" : "No of Parking",
-      "date_type" : "integer"
+       "column" : "email",
+       "date_type" : "string",
+       "required" : true,
+       "unique" : true
     }
     ]
 }
@@ -65,7 +59,8 @@ composer require laravelcollective/html
 
 ```
 * Column name 'name' is mandatory for all modules,
-* Data types : string, integer
+* Data types : string, integer, date, dateTime, bigInteger
+* See the json file all data types [Sample Payload] (https://github.com/thilakace/laravelcrudmvc/blob/master/sample_module_create.json)
 * This package will create one master table in your project for unique module validation. The table name is crud_master.
 * And each module has an seperate table. 
 ## Step 2 : Run migration for table creation 

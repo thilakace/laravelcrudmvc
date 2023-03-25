@@ -1,0 +1,37 @@
+{
+  "module" : "employee4",
+  "fields" : [
+    {
+      "column" : "name",
+      "date_type" : "string",
+      "required" : true
+    },
+    {
+      "column" : "email",
+      "date_type" : "string",
+      "required" : true,
+      "unique" : true
+    },
+    {
+      "column" : "first_name",
+      "date_type" : "string",
+      "required" : true
+    },
+    {
+      "column" : "lastname",
+      "date_type" : "string",
+      "required" : false
+    },
+    {
+      "column" : "DOB",
+      "date_type" : "date",
+      "required" : false
+    },
+    {
+      "column" : "mobile",
+      "date_type" : "bigInteger",
+      "required" : false
+    }
+    
+  ]
+}

@@ -73,19 +73,69 @@ class MasterController extends Controller
             foreach (Request::get('fields') as $key => $value) {
                 # code...
                 $column = Str::slug($value["column"], "_");
+                $nullable = (isset($value["required"]) && $value["required"] == true) ? false : true; 
+                $unique = (isset($value["unique"]) && $value["unique"] == true) ? true : false; 
                 switch ($value['date_type']){
                     
                     case 'string':
-                     $migrationContent .= ' $table->string("'.$column.'");'.PHP_EOL;
-                    break;   
+                     $string = ' $table->string("'.$column.'")';
+                     if($nullable){
+                        $string .= '->nullable()';
+                     }
+                     if($unique){
+                        $string .= '->unique()';
+                     }
+                     $string .= ';';
+                     $migrationContent .= $string.PHP_EOL;
+                    break;  
+
                     case 'integer':
-                        $migrationContent .= ' $table->integer("'.$column.'");'.PHP_EOL;
-                       break;   
+                        $integer =   ' $table->integer("'.$column.'")';
+                        if($nullable){
+                            $integer .= '->nullable()';
+                        }
+                        if($unique){
+                            $integer .= '->unique()';
+                         }
+                        $integer .= ';';
+                        $migrationContent .= $integer.PHP_EOL;
+
+                    break; 
+
+                    case 'date':
+                        $date =  ' $table->date("'.$column.'")';
+                        if($nullable){
+                            $date .= '->nullable()';
+                        }
+                        $date .= ';';
+                        $migrationContent .= $date.PHP_EOL;
+
+                    break;
+                    case 'dateTime':
+                        $dateTime =  ' $table->dateTime("'.$column.',$precision = 0")';
+                        if($nullable){
+                            $dateTime .= '->nullable()';
+                        }
+                        $dateTime .= ';';
+                        $migrationContent .= $dateTime.PHP_EOL;
+
+                        
+                     break;  
+                     case 'bigInteger':
+                        $bigInteger =  ' $table->bigInteger("'.$column.'")';
+                        if($nullable){
+                            $bigInteger .= '->nullable()';
+                        }
+                        $bigInteger .= ';';
+                        $migrationContent .= $bigInteger.PHP_EOL;
+
+                     break;   
+                      
                     default:
                     
                 } 
             }
-            $migrationContent .= ' $table->integer("status",false,true);'.PHP_EOL;
+            $migrationContent .= ' $table->integer("status",false,true)->default(0);'.PHP_EOL;
             $migrationContent .= ' $table->integer("created_by",false,true);'.PHP_EOL;
             $migrationContent .= ' $table->integer("modified_by",false,true);'.PHP_EOL;
             $migrationContent .= ' $table->timestamps();';
@@ -95,10 +145,47 @@ class MasterController extends Controller
         }
     }
 
+    public function getValidationFields($table_name){
+        $content = 'if($value =="status" || $value =="id" || $value=="created_at" || $value=="updated_at" || $value =="remember_token"){'.PHP_EOL;
+        $content .= '}';
+        if(Request::exists('fields')){
+            foreach (Request::get('fields') as $key => $value) {
+                $column = Str::slug($value["column"], "_");
+                $nullable = (isset($value["required"]) && $value["required"] == true) ? false : true; 
+                $unique = (isset($value["unique"]) && $value["unique"] == true) ? true : false; 
+                
+                $rules = NULL;
+                if(isset($value["required"]) && $value["required"] == true){
+                    $rules .= 'required|';
+                }
+
+                if(isset($value["column"]) && $value["column"] == 'email'){
+                    $rules .= 'email|';
+                }
+
+                if(isset($value["unique"]) && $value["unique"] == true){
+                    $rules .= 'unique:'.$table_name.','.$column.'|';
+                }
+
+                if($rules != NULL){
+                        $content .= 'else if($value == "'.$column.'"){'.PHP_EOL;
+                        $content .= '$rules[$value] = "'.$rules.'";';
+                        $content .= PHP_EOL.'}'.PHP_EOL;
+                }
+
+                
+                  
+                    
+            }
+        }   
+        return  $content;
+    }
+
     public function create($name){
         $name_class = str_replace(" ", "_", $name);
         $cntrl_name = ucfirst($name_class);
         $table_name = $name_class;
+      //  return $this->getValidationFields($table_name);
         $this->done($name_class,$cntrl_name,$table_name);
         return response()->json([
             "status" => " ".$name_class." has been create successfully",
@@ -107,6 +194,7 @@ class MasterController extends Controller
     }
 
     public function done($name_class,$cntrl_name,$table_name){
+        
         $date = date('Y_m_d');
         $rand = rand(111111,999999);
         $word = $date."_".$rand."_create_".$name_class;
@@ -260,15 +348,7 @@ class MasterController extends Controller
                 $rules = array();
                 
                 foreach ($column as $key => $value) {
-                    if($value =="status" ){
-
-                    }else if($value == "image"){
-                    // echo $value;
-                        $rules[$value] = "required";
-                    }
-                    else{
-                        $rules[$value] = "required";
-                    }
+                    '.$this->getValidationFields($table_name).'
                     
                 }
 
@@ -354,17 +434,9 @@ class MasterController extends Controller
                 $rules = array();
                 
                 foreach ($column as $key => $value) {
-                        if($value =="status" || $value =="id" || $value=="created_at" || $value=="updated_at" || $value =="remember_token"){
-
-                        }else if($value == "image"){
+                    '.$this->getValidationFields($table_name).'
                         
-                            $rules[$value] = "required";
-                        }
-                        else{
-                            $rules[$value] = "required";
-                        }
-                        
-                    }
+                }
 
                     $validator = Validator::make(Input::all(), $rules);
 
