@@ -145,7 +145,7 @@ class MasterController extends Controller
         }
     }
 
-    public function getValidationFields($table_name){
+    public function getValidationFields($table_name,$mode){
         $content = 'if($value =="status" || $value =="id" || $value=="created_at" || $value=="updated_at" || $value =="remember_token"){'.PHP_EOL;
         $content .= '}';
         if(Request::exists('fields')){
@@ -163,8 +163,14 @@ class MasterController extends Controller
                     $rules .= 'email|';
                 }
 
+                
+
                 if(isset($value["unique"]) && $value["unique"] == true){
-                    $rules .= 'unique:'.$table_name.','.$column.'|';
+                    $rules .= 'unique:'.$table_name.','.$column;
+                    if($mode =='update'){
+                        $rules .= ',$id';
+                    }
+                    $rules .= '|';
                 }
 
                 if($rules != NULL){
@@ -348,7 +354,7 @@ class MasterController extends Controller
                 $rules = array();
                 
                 foreach ($column as $key => $value) {
-                    '.$this->getValidationFields($table_name).'
+                    '.$this->getValidationFields($table_name,'save').'
                     
                 }
 
@@ -434,7 +440,7 @@ class MasterController extends Controller
                 $rules = array();
                 
                 foreach ($column as $key => $value) {
-                    '.$this->getValidationFields($table_name).'
+                    '.$this->getValidationFields($table_name,'update').'
                         
                 }
 
@@ -483,7 +489,7 @@ class MasterController extends Controller
                             $data->save();
                             
                             return response()->json([
-                                "status" => "The Data has been added.",
+                                "status" => "The Data has been updated.",
                                 "data" => $data->id
                             ]); 
                     }
